@@ -3,7 +3,7 @@
 A production trancking software written in C++ with the fxos-gui lib.  
 
 ## How does it look like ?
-![Fxpipe](https://motion-live.com/fxos/data/fxpipe.webp)
+![Fxpipe](https://motion-live.com/fxos/data/fxpipe.jpg)
 
 ## Dependency Graph
 
