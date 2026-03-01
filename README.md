@@ -2,8 +2,8 @@
 
 A production trancking software written in C++ with the fxos-gui lib.  
 
-## How does is look like ?
-![Demo](https://motion-live.com/fxos/data/fxpipe-demo.gif)
+## How does it look like ?
+![Demo](https://motion-live.com/fxos/data/fxpipe-demo.webp)
 
 ## Dependency Graph
 
@@ -24,5 +24,5 @@ sudo ./build-n-install
 Annnnd you're done !  
 
 ## TODO
- - [ ] This readme to start lol.
+ - [ ] Correctly write this readme, lol.
  - [ ] And a lot more, this my article that talks about it here.
