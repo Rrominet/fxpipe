@@ -1,0 +1,201 @@
+:root {
+    --subtask-color : #292929;
+    --done-color : #228855;
+    --subdone-color : #117744;
+    --selected-color: #1199aa;
+    --active-color : #66ddff;
+}
+
+.taskview
+{
+    padding : 0.5em;
+}
+
+.task
+{
+    background-color : var(--list-background-color);
+    border-radius : 5px;
+    padding : 0;
+    margin-top : 4px;
+    outline : 1px solid;
+    outline-color : transparent;
+    transition : background-color 0.15s, outline-color 0.15s;
+}
+
+.task .header,
+.task .body
+{
+    padding : 0.5em 1em;
+}
+
+
+.task .body
+{
+    padding-top : 0em;
+}
+
+.task:hover
+{
+    background-color : var(--hover-background-color);
+}
+
+.task:first-child
+{
+    border-radius : 15px 15px 5px 5px;
+    margin-top : 0px;
+}
+
+.task:last-child
+{
+    border-radius : 5px 5px 15px 15px;
+}
+
+.task .header .name
+{
+    font-weight : bold;
+    font-style : italic;
+}
+
+.task .status,
+.task .priority
+{
+    padding : 0em 1em;
+    border-radius : 5px;
+}
+
+.task .priority
+{
+    margin-left : 1em;
+}
+
+.task .status.not-started,
+.task .priority.low,
+.task .priority.this-month
+{
+    background : #444444;
+}
+
+.task .status.started
+{
+    background : #225588;
+}
+
+.task .status.done
+{
+    background-color : var(--done-color);
+}
+
+.task .status.need-review,
+.task .priority.medium,
+.task .priority.this-week
+{
+    background: #777700;
+}
+
+.task .priority.high
+{
+    background: #773300;
+}
+
+
+.task .status.need-retakes,
+.task .priority.today,
+.task .priority.urgent
+{
+    background: #990000;
+}
+
+.task .description
+{
+    font-style : italic;
+    color : #aaaaaa;
+    font-size : 0.9em;
+}
+
+.task.selected
+{
+    outline-color :  var(--selected-color);
+}
+
+.task.active
+{
+    outline-color :  var(--active-color);
+}
+
+label.nothing-yet
+{
+    color : grey;
+    font-style : italic;
+}
+
+.event-cmds
+{
+    border-radius : 5px;
+    transition : background-color .2s;
+}
+
+.event-cmds.active
+{
+    background-color: #222222;
+}
+
+.parent-name
+{
+    font-style : italic;
+    color : #999999;
+}
+
+.taskview.child
+{
+    font-size: 0.8em;
+    background-color : var(--list-background-color);
+    border-radius : 20px;
+}
+
+.taskview.child .task
+{
+   background-color: #292929;
+    box-shadow : 0 0 5px #00000020;
+}
+
+.task.dragged,
+.taskview.child .task.dragged
+{
+    background-color : #444444;
+}
+
+.task.new-parent,
+.taskview.child .task.new-parent
+{
+    outline-color :  #aaaaaa;
+}
+
+.open-recent-window
+{
+    padding : 0.5em;
+    padding-top : 1em;
+}
+
+.recent-label
+{
+    background: #222222;
+    margin : 1px 0;
+    border-radius : 5px;
+    padding : 0.5em;
+}
+
+.recent-label:hover
+{
+    background : #151515;
+}
+
+.recent-label .name
+{
+   font-weight : bold;
+}
+
+.recent-label .filepath
+{
+   font-style : italic;
+   color : grey;
+}

@@ -1,0 +1,12 @@
+core/build/.cache
+core/build/.obj
+core/build/.gdb_history
+core/build/fxpipe
+core/build/fxpipe-core
+gui/build/.cache
+gui/build/.obj
+gui/build/.gdb_history
+gui/build/fxpipe
+gui/build/fxpipe-pc_err
+gui/build/fxpipe-pc_out
+gui/build/ipc.log

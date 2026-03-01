@@ -1,0 +1,50 @@
+#!/usr/local/bin/python
+
+from ml import build
+from ml.boilerplate import cpp
+import sys
+import os
+import shutil
+sys.path.append("../")
+
+cpp.generate("../src")
+
+fm = "/media/romain/Donnees/Programmation/cpp/frameworks"
+libs = "/media/romain/Donnees/Programmation/cpp/libs"
+
+for arg in sys.argv:
+    if "libs=" in arg:
+        libs = arg.split("=")[1]
+    elif "fm=" in arg or "cpp-utils=" in arg:
+        fm = arg.split("=")[1]
+    elif "prjs=" in arg:
+        prjs = arg.split("=")[1]
+
+includes = [
+    "../src",
+    fm,
+    libs + "/json",
+    libs + "/eigen",
+        ]
+
+srcs = [
+        "../src",
+        ]
+
+b = build.create("fxpipe-core", sys.argv)
+b.includes = includes
+b.addToSrcs(srcs)
+
+if not b.release : 
+    b.addToLibs([
+        "/media/romain/Donnees/Programmation/cpp/frameworks/build/libmlapi.so",
+        ])
+elif b.release : 
+    b.addProject("/opt/mlapi/lib")
+
+#b.definitions += ["NO_LOG"]
+
+if ("clean" in sys.argv or "clear" in sys.argv) :
+    b.clean()
+else :
+    b.build()

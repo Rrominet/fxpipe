@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+mkdir /opt/fxpipe
+cp -v ./fxpipe /opt/fxpipe/fxpipe
+chmod +x /opt/fxpipe/fxpipe
+
+cp -v ./version /opt/fxpipe/version
+cp -v ./dependencies /opt/fxpipe/dependencies
+cp -v ./fxpipe.css /opt/fxpipe/fxpipe.css
+
+rm -fv /usr/local/bin/fxpipe
+ln -s /opt/fxpipe/fxpipe /usr/local/bin/fxpipe
+
+chmod -R 777 /opt/fxpipe
+
+echo "fxpipe installed."
