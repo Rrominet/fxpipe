@@ -1,4 +1,4 @@
 {
-    "/opt/mlapi/lib": "1.2.2",
-    "/opt/mlgui/lib": "1.6.0"
+    "/opt/mlapi/lib": "1.2.3",
+    "/opt/mlgui/lib": "1.7.0"
 }
