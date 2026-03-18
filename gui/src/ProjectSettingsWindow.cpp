@@ -56,7 +56,7 @@ void ProjectSettingsWindow::init()
         this->hide();
     };
 
-    auto valid = fxpipe::get()->createBackendCommand(fxpipe::get()->backend(), "Set Project", "set-projet", "set-project",
+    auto valid = fxpipe::get()->createBackendCommand(fxpipe::get()->backend(), "Set Project", "set-project", "set-project",
             [this]{return this->data();}, cb);
 
     _main->appendCommand((ml::Command*)valid.get());
@@ -67,6 +67,12 @@ void ProjectSettingsWindow::_setEvents()
 {
     _versioningType.addOnUpdate([this]{
                 _versioningTypeHelp->setText(versioningTypeHelps[_versioningType.value()]);
+            });
+
+    this->addKeybind("ctrl enter", [this]{
+                fxpipe::get()->cmds().exec("set-project");
+                this->hide();
+                return true;
             });
 }
 

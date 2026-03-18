@@ -9,9 +9,10 @@
 
 #include "./Task.h"
 
+#define CONSTRUCT_PROPS _search("Search", "", "Search for a specific task...")
 
-MainWindow::MainWindow(ml::App* app) : ml::Window(app){}
-MainWindow::MainWindow(ml::App* app, ml::Window* parent) : ml::Window(app, parent) {}
+MainWindow::MainWindow(ml::App* app) : ml::Window(app), CONSTRUCT_PROPS {}
+MainWindow::MainWindow(ml::App* app, ml::Window* parent) : ml::Window(app, parent), CONSTRUCT_PROPS {}
 MainWindow::~MainWindow(){}
 
 void MainWindow::init()
@@ -20,6 +21,8 @@ void MainWindow::init()
     this->setSize(800, 540);
     this->setTitle("fxpipe");
     this->createMenus();
+    _main->appendProp(&_search);
+    _search.hide();
 
     _taskView = std::make_unique<TaskView>(&this->main()->content());
 
@@ -28,6 +31,12 @@ void MainWindow::init()
 
 void MainWindow::_setEvents()
 {
+    _search.addOnUpdate([this]{
+            fxpipe::get()->sendSearch(_search.value());
+            });
+    _search.addOnValid([this]{
+                _search.hide();
+            });
 }
 
 void MainWindow::createMenus()
@@ -62,8 +71,14 @@ void MainWindow::createMenus()
     edit->addCommand("task-reparent");
     edit->addCommand("task-unparent");
     edit->addCommand("task-reparent-up");
+    edit->addSeparator();
+    edit->addCommand("task-toggle-archived");
+    edit->addCommand("task-set-done");
+    edit->addCommand("task-set-started");
 
     auto view = ml::app()->menus().create("view", "View");
+    view->addCommand("show-search");
+    view->addSeparator();
     view->addCommand("view-toggle-from-state-done");
     view->addCommand("view-toggle-from-state-started");
     view->addCommand("view-toggle-from-state-archived");
@@ -81,12 +96,16 @@ void MainWindow::createMenus()
     view->addSeparator();
     view->addCommand("refresh-from-backend");
 
+    auto tools = ml::app()->menus().create("tools", "Tools");
+    tools->addCommand("show-goals");
+
     auto help = ml::app()->menus().create("help", "Help");
     help->addCommand("about");
 
     _menuBar->addMenu("file");
     _menuBar->addMenu("edit");
     _menuBar->addMenu("view");
+    _menuBar->addMenu("tools");
     _menuBar->addMenu("help");
 
     auto tskctx = ml::app()->menus().create("task-context", "Task Menu");

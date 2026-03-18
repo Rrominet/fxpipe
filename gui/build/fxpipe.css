@@ -199,3 +199,8 @@ label.nothing-yet
    font-style : italic;
    color : grey;
 }
+
+.task.archived
+{
+    filter : contrast(0.5) grayscale(1);
+}

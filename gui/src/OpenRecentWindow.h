@@ -11,13 +11,15 @@ namespace ml
     class Box;
     class Label;
     class Scrollable;
+    class Menu;
 }
 
+class OpenRecentWindow;
 class RecentLabel
 {
     public: 
-        RecentLabel(ml::Box* parent, const std::string& name, const std::string& filepath);
-        RecentLabel(ml::Box* parent, const json& data);
+        RecentLabel(OpenRecentWindow* win, ml::Box* parent, const std::string& name, const std::string& filepath);
+        RecentLabel(OpenRecentWindow* win, ml::Box* parent, const json& data);
         virtual ~RecentLabel() = default;
 
         void draw();
@@ -31,6 +33,9 @@ class RecentLabel
         std::string filepath()const {return _filepath;}
         void click();
 
+        void createCtx();
+        ml::Box* box() {return _box;}
+
     private : 
         std::string _name;
         std::string _filepath;
@@ -39,6 +44,9 @@ class RecentLabel
         ml::Box* _box = nullptr;
         ml::Label* _namelbl = nullptr;
         ml::Label* _filepathlbl = nullptr;
+        ml::Menu* _ctx = nullptr;
+
+        OpenRecentWindow* _win = nullptr;
 
         void _setEvents();
 };
@@ -55,6 +63,7 @@ class OpenRecentWindow : public ml::Window
         void drawRecentFiles();
 
         ml::Vec<RecentLabel*> match(std::string search);
+        void remove(RecentLabel* label);
 
     protected : 
         ml::Vec<std::unique_ptr<RecentLabel>> _labels;

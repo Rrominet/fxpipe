@@ -13,6 +13,7 @@
 #include "./FxPipe.h"
 #include "./TaskView.h"
 #include "ipc.h"
+#include "./MainWindow.h"
 
 std::unordered_map<Task::Status, std::string> status_map = {
     {Task::NOT_STARTED, "Not started"}, 
@@ -138,6 +139,9 @@ void Task::update(const json& data)
 
     if (_data.contains("progress"))
         this->setProgress(_data["progress"]);
+
+    if (_data.contains("archived"))
+        this->setArchived(_data["archived"], false);
     
     if(_data.contains("subtasks"))
     {
@@ -162,6 +166,8 @@ void Task::_onLeftUp(ml::EventInfos& e)
 {
     e.stopPropagation();
     lg("Left UP for " << this->data()["name"]);
+
+    fxpipe::get()->fxpipeW()->search().hide();
     if(!e.ctrl && !e.shift && !e.alt)
     {
         if (!this->selected() || fxpipe::get()->selectedTasks().size() > 1)
@@ -219,7 +225,6 @@ void Task::_onPriorityWheel(ml::EventInfos& e)
         this->incrementPriority(-1);
     else
         this->incrementPriority(1);
-    ipc::call(fxpipe::get()->backend(), "create-or-modify-task", _data, 0, true);
 }
 
 void Task::toggleBody()
@@ -253,7 +258,7 @@ void Task::setStatus(Status status, bool sendToBackend)
     if (!sendToBackend)
         return;
 
-    ipc::call(fxpipe::get()->backend(), "create-or-modify-task", _data, 0, true);
+    this->sendUptadeToBackend();
 }
 
 void Task::setPriority(Priority priority)
@@ -265,6 +270,7 @@ void Task::setPriority(Priority priority)
     _priority->clearCssClasses();
     _priority->addCssClass("priority");
     _priority->addCssClass(str::clean(s, true));
+    this->sendUptadeToBackend();
 }
 
 void Task::incrementStatus(int inc, bool sendToBackend)
@@ -373,6 +379,16 @@ ml::Vec<Task*> Task::children(bool reccursive)
 void Task::setVisible(bool visible)
 {
     _box->setVisible(visible);
+    if (visible)
+    {
+        if (!_parentView->taskParent())
+            return;
+        if (!_parentView->taskParent()->visible() || !_parentView->taskParent()->bodyShown())
+        {
+            _parentView->taskParent()->setVisible(true);
+            _parentView->taskParent()->showBody();
+        }
+    }
 }
 
 bool Task::visible()
@@ -414,4 +430,42 @@ int Task::index() const
             return i;
     }
     return -1;
+}
+
+void Task::sendUptadeToBackend()
+{
+    ipc::call(fxpipe::get()->backend(), "create-or-modify-task", _data, 0, true);
+}
+
+void Task::setArchived(bool archived, bool updateBack)
+{
+    _data["archived"] = archived;	
+    if (archived)
+        _box->addCssClass("archived");
+    else 
+        _box->removeCssClass("archived");
+
+    if (updateBack)
+        this->sendUptadeToBackend();
+}
+
+void Task::toggleArchived()
+{
+    this->setArchived(!_data["archived"].get<bool>());
+}
+
+void Task::duplicate()
+{
+    json data = _data;	
+    data["id"] = str::random(20);
+    data["creationTime"] = ml::time::now();
+
+    auto cb = [this](const json& res)
+    {
+        if (!res.contains("data"))
+            return;
+        auto ntaskdata = res["data"];
+        this->parentView()->createTask(ntaskdata);
+    };
+    ipc::call(fxpipe::get()->backend(), "create-or-modify-task", data, cb, true);
 }

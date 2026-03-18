@@ -57,6 +57,8 @@ class Tasks
     //remove any nullptr in tasks - that can happen when reparenting
     void cleanup();
 
+    ml::Vec<Task*> allTasks();
+
     private : 
         ml::Vec<std::unique_ptr<Task>> _tasks;
         Task* _parent = nullptr; //bp cg

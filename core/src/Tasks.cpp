@@ -225,3 +225,14 @@ ml::Ret<> Tasks::reorder(const ml::Vec<std::string>& ids)
 
     return ml::ret::success();
 }
+
+ml::Vec<Task*> Tasks::allTasks()
+{
+    ml::Vec<Task*> tasks;	
+    for (auto& task : _tasks)
+    {
+        tasks.push_back(task.get());
+        tasks.concat(task->subtasks().allTasks());
+    }
+    return tasks;
+}

@@ -310,3 +310,13 @@ Task* Task::parentTask() const
         return nullptr;
     return _parent->parent();
 }
+
+std::string Task::searchString()
+{
+    std::string s;	
+    s = _name + "\n" + _description + "\n" + _category + "\n" + _id;
+    s = str::clean(s, true);
+    s = str::replace(s, "-", "");
+    s = str::replace(s, "_", "");
+    return s;
+}

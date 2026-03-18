@@ -50,6 +50,8 @@ class Task
         std::string parentId() const;
         Task* parentTask() const;
 
+        std::string searchString();
+
     protected: 
         std::string _id; //bp cg
         

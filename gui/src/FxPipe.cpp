@@ -14,6 +14,7 @@
 #include "./enums.h"
 #include "./FxPipeCommand.h"
 #include "./OpenRecentWindow.h"
+#include "./GoalsWindow.h"
 
 namespace fxpipe
 {
@@ -143,6 +144,8 @@ void FxPipe::createCommands()
         storage::set("last-project", _currentFile);  
         this->deserialize(response["data"]);
         this->addToRecentFiles(_currentFile);
+
+        _fxpipeW->setTitle(_currentFile);
     };
 
     _openCmd = this->createBackendCommand(_backend, "Open", "open-gui", "open", getfilepath, opencb).get();
@@ -245,11 +248,20 @@ void FxPipe::createCommands()
     cmd->setExec(nversion);
     cmd->setHelp("Create a new version of the project.");
     cmd->setKeybind("ctrl v");
+
+    cmd = this->cmds().createCommand<ml::GuiCommand>("Search", "show-search");
+    cmd->setExec([this](const std::any&){this->toggleSearch();});
+    cmd->setHelp("Search for a specific task... (toggle)");
+    cmd->setKeybind("slash");
     
     this->createSelectionCommands();
     this->createViewCommands();
     this->createTaskCommands();
     this->createTaskViewCommands();
+
+    this->createSearchCommand();
+
+    auto goalscmd = this->cmds().createCommand<ml::GuiCommand>("Mange Goals", "show-goals", [this](const std::any&){this->showGoals();});
 }
 
 void FxPipe::createSelectionCommands()
@@ -313,6 +325,12 @@ void FxPipe::createTaskCommands()
     cmd->setHelp("Mark the task as done.");
     cmd->setKeybind("v");
     cmd->toQueue().push([this]{this->updateAllProgressesFromBackend();});
+
+    cmd = this->cmds().createCommand<FxPipeCommand>("Mark as Archived", "task-toggle-archived");
+    cmd->setExecForSelectedTasks([this](Task* task){
+                task->toggleArchived();
+            });
+    cmd->setHelp("Toggle the task as archived.");
 
     cmd = this->cmds().createCommand<FxPipeCommand>("Mark as Started", "task-set-started");
     cmd->setExecForSelectedTasks([this](Task* task){task->setStatus(Task::STARTED, true);});
@@ -385,6 +403,11 @@ void FxPipe::createTaskCommands()
     cmd->setExecForSelectedTasks(cmdexec3);
     cmd->setHelp("Reparent the Task up : Put in the View above it.");
     cmd->setKeybind("P");
+
+    cmd = this->cmds().createCommand<FxPipeCommand>("Duplicate", "task-duplicate");
+    cmd->setExecForSelectedTasks([this](Task* task){task->duplicate();});
+    cmd->setHelp("Duplicate the selected tasks");
+    cmd->setKeybind("ctrl d");
 
     cmd = this->cmds().createCommand<FxPipeCommand>("Move up", "task-move-up");
     cmd->setExecForActiveTaskView([this](TaskView* view){view->moveSelectedTasks(-1);});
@@ -518,6 +541,8 @@ void FxPipe::onNewProject()
 {
     _currentFile = "";
     this->deserialize(json::object());
+    if (_projectSettingsWindow)
+        _projectSettingsWindow->reset();
 }
 
 void FxPipe::openLastProject()
@@ -887,7 +912,70 @@ void FxPipe::addToRecentFiles(const std::string& path)
     this->executeBackendCommand(_backend, "project-settings", json::object(), onres);
 }
 
+void FxPipe::toggleSearch()
+{
+    if (_fxpipeW->search().visible())
+        _fxpipeW->search().hide();	
+    else 
+    {
+        _fxpipeW->search().show();    
+        _fxpipeW->search().focus();
+    }
+}
+
+void FxPipe::sendSearch(const std::string& text)
+{
+    _searchCmd->execJson({{"query", text}});
+}
+
+void FxPipe::createSearchCommand()
+{
+    auto cb = [this](const json& res)
+    {
+        if (!res.contains("data")) 
+            return;
+        if (!res["data"].is_array())
+            return;
+
+        if (res["data"].size() == 0)
+        {
+            for (auto& task : this->allTasks())
+            {
+                if (!task->archived())
+                    task->show();
+                else 
+                    task->hide();
+            }
+
+            for (auto& task : this->allTasks())
+                task->hideBody();
+            return;
+        }
+
+        for (auto& task : this->allTasks())
+        {
+            task->hideBody();
+            task->hide();
+        }
+
+        for (auto& task : res["data"])
+        {
+            auto tret = this->task(task["id"]);
+            if (tret.success)
+                tret.value->show();
+        }
+    };
+    _searchCmd = this->createBackendCommand(_backend, "Search", "send-search", "search", json::object(), cb).get();
+    _searchCmd->setSync(true);
+}
+
+void FxPipe::showGoals()
+{
+    this->createOrShowWindow(&_goalsWindow);
+}
+
 namespace fxpipe
 {
     FxPipe* get(){return _fxpipe;}
 }
+

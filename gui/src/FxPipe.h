@@ -17,6 +17,7 @@ class TaskSettingsWindow;
 class ProjectSettingsWindow;
 class NewVersionWindow;
 class OpenRecentWindow;
+class GoalsWindow;
 class FxPipe : public ml::App
 {
     public:
@@ -83,6 +84,12 @@ class FxPipe : public ml::App
         void showOpenRecentWindow();
 
         void addToRecentFiles(const std::string& path);
+        void toggleSearch();
+
+        void sendSearch(const std::string& text);
+        void createSearchCommand();
+
+        void showGoals();
 
     private : 
         MainWindow* _fxpipeW=nullptr; //bp cg
@@ -109,6 +116,7 @@ class FxPipe : public ml::App
         ml::GuiBackendCommand* _openTaskCmd = nullptr; //bp cg
         ml::GuiBackendCommand* _reparentTaskCmd = nullptr; //bp cg
         ml::GuiBackendCommand* _newVersionCmd = nullptr; //bp cg
+        ml::GuiBackendCommand* _searchCmd = nullptr; //bp cg
 
         std::string _currentFile = ""; //bp cgs
 
@@ -117,6 +125,8 @@ class FxPipe : public ml::App
 
         void _onSelectionChanged();
         void _onActiveTaskChanged();
+
+        GoalsWindow* _goalsWindow = nullptr;
 
     public : 
 #include "./FxPipe_gen.h"

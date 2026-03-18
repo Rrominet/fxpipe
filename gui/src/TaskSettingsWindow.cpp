@@ -56,6 +56,12 @@ void TaskSettingsWindow::init()
     _main->appendProp(&_archived, ml::CHECKBOX);
     _main->createSeparator();
     _cmdButton = _main->appendCommand("create-or-modify-task", "Create Task").get();
+
+    this->addKeybind("ctrl enter", [this]{
+                ml::app()->cmds().exec("create-or-modify-task");
+                this->hide();
+                return true;
+            });
 }
 
 void TaskSettingsWindow::setFromTask(Task* task)

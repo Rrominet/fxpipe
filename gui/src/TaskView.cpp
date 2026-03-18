@@ -27,6 +27,8 @@ TaskView::~TaskView()
 Task* TaskView::createTask(const json& data)
 {
     auto t = std::make_unique<Task>(_box, data, this);	
+    if (data.contains("archived") && data["archived"].get<bool>())
+        t->hide();
     _tasks.push_back(std::move(t));
     _box->show();
     return _tasks.back().get();

@@ -81,6 +81,9 @@ class Task
         ml::Vec<Task*> children(bool reccursive=false);
 
         void setVisible(bool visible);
+        void show(){this->setVisible(true);}
+        void hide(){this->setVisible(false);}
+
         bool visible();
         bool selected();
 
@@ -88,9 +91,17 @@ class Task
         void showBody();
         void hideBody();
         void remove();
+
+        void setArchived(bool archived, bool updateBack=true);
+        void toggleArchived();
+        bool archived()const {return _data["archived"].get<bool>();}
         
         //inex in his list of subtasks
         int index() const;
+
+        void sendUptadeToBackend();
+
+        void duplicate();
 
     protected : 
         json _data; //bp cg

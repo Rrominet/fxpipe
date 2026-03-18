@@ -66,6 +66,7 @@ class FxPipe
         ml::Vec<std::string> asList(const json& data, const std::string& key="id");
 
         std::unique_ptr<Task>& nullTask() {return _nullTask;};
+        ml::Vec<Task*> allTasks();
 
         //public client interface
     public : 
@@ -87,6 +88,7 @@ class FxPipe
         json _listVersions(const json& args);
         json _getStats(const json& args);
         json _currentStatsDone(const json& args);
+        json _search(const json& args);
 
     private : 
         void reg();

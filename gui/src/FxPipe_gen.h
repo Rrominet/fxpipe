@@ -74,6 +74,10 @@ ml::GuiBackendCommand* newVersionCmd(){return _newVersionCmd;}
 const ml::GuiBackendCommand* newVersionCmd() const {return _newVersionCmd;}
 
 
+ml::GuiBackendCommand* searchCmd(){return _searchCmd;}
+const ml::GuiBackendCommand* searchCmd() const {return _searchCmd;}
+
+
 std::string currentFile(){return _currentFile;}
 const std::string& currentFile() const {return _currentFile;}
 void setCurrentFile(const std::string& currentFile){_currentFile = currentFile;}

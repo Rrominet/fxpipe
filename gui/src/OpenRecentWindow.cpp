@@ -12,18 +12,22 @@
 #include "mlgui.2/src/GuiBackendCommand.h"
 #include "str.h"
 
-RecentLabel::RecentLabel(ml::Box* parent, const std::string& name, const std::string& filepath): _parent(parent), _name(name), _filepath(filepath)
+unsigned int recent_label_count = 0;
+
+RecentLabel::RecentLabel(OpenRecentWindow* win, ml::Box* parent, const std::string& name, const std::string& filepath): _parent(parent), _name(name), _filepath(filepath), _win(win)
 {
     this->draw();
+    recent_label_count++;
 }
 
-RecentLabel::RecentLabel(ml::Box* parent,const json& data) : _parent(parent)
+RecentLabel::RecentLabel(OpenRecentWindow* win, ml::Box* parent,const json& data) : _parent(parent), _win(win)
 {
     if (data.contains("name") && data["name"].is_string())
         _name = data["name"].get<std::string>();
     if (data.contains("filepath") && data["filepath"].is_string())
         _filepath = data["filepath"].get<std::string>();
     this->draw();	
+    recent_label_count++;
 }
 
 void RecentLabel::draw()
@@ -41,6 +45,7 @@ void RecentLabel::draw()
 
     _namelbl->setText(_name);
     _filepathlbl->setText(_filepath);
+    this->createCtx();
     _setEvents();
 }
 
@@ -78,6 +83,7 @@ void RecentLabel::_setEvents()
     _box->addEventListener(ml::LEFT_UP, [this](ml::EventInfos &){
                 this->click();
             });	
+    _box->setContextMenu(_ctx->id());
 }
 
 void RecentLabel::click()
@@ -95,6 +101,12 @@ bool RecentLabel::match(const std::string& search)
     if (str::contains(name, search) || str::contains(filepath, search))
         return true;
     return false;
+}
+
+void RecentLabel::createCtx()
+{
+    _ctx = ml::app()->menus().create("recent-label-ctx__" + std::to_string(recent_label_count)).get(); 	
+    _ctx->addButton("Remove", [this]{_win->remove(this);});
 }
 
 #define PROPS _search("Search")
@@ -171,7 +183,7 @@ void OpenRecentWindow::drawRecentFiles()
 {
     for (const auto& f : _recentFiles)
     {
-        auto lbl = std::make_unique<RecentLabel>(&_labelsScrollable->content(), f);
+        auto lbl = std::make_unique<RecentLabel>(this, &_labelsScrollable->content(), f);
         _labels.push_back(std::move(lbl));
     }
 }
@@ -186,4 +198,29 @@ ml::Vec<RecentLabel*> OpenRecentWindow::match(std::string search)
             _r.push_back(l.get());
     }
     return _r;
+}
+
+void OpenRecentWindow::remove(RecentLabel* label)
+{
+    json _new = json::array();
+    for (auto&f : _recentFiles)
+    {
+        if(f["filepath"] == label->filepath())
+            continue;
+        else 
+            _new.push_back(f);
+    }
+
+    storage::set("recent-files", _new);
+    _recentFiles = _new;
+
+    label->box()->remove();	
+    for (const auto& l : _labels)
+    {
+        if (l.get() == label)
+        {
+            _labels.remove(l);
+            break;
+        }
+    }
 }

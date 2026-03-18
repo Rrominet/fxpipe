@@ -5,6 +5,7 @@
 #include "mlprocess.h"
 
 #include "./Tasks.hpp"
+#include "str.h"
 
 FxPipe* _instance = nullptr;
 
@@ -66,6 +67,7 @@ void FxPipe::reg()
 
     ipc::reg("stats", [this](const json& args){return _getStats(args);}, {}, {"quantity"});
     ipc::reg("current-stats-done", [this](const json& args){return _currentStatsDone(args);});
+    ipc::reg("search", [this](const json& args){return _search(args);}, {"query"});
 
 #ifdef mydebug
     ipc::logAll();
@@ -574,4 +576,31 @@ json FxPipe::_currentStatsDone(const json& args)
     ipc::success(_r);
 
     return _r;
+}
+
+json FxPipe::_search(const json& args)
+{
+    json _r;	
+    _r["data"] = json::array();
+    std::string query = args["query"];
+    query = str::clean(query, true);
+    query = str::replace(query, "-", "");
+    query = str::replace(query, "_", "");
+
+    if(query.empty())
+        return _r;
+
+    for (auto& task : this->allTasks())
+    {
+        if (task->searchString().find(query) != std::string::npos)
+            _r["data"].push_back(task->serialize());
+    }
+
+    ipc::success(_r);
+    return _r;
+}
+
+ml::Vec<Task*> FxPipe::allTasks()
+{
+    return _tasks.allTasks();
 }
