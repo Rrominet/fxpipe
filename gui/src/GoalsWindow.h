@@ -12,6 +12,18 @@ namespace ml
     class Label;
 }
 
+struct LifeGoalProps
+{
+    ml::StringProperty context; 
+    ml::StringProperty preflightsQuestions;
+    ml::StringProperty goalsFilers;
+    ml::StringProperty goals;
+    bool validated = false;
+    int64_t lastValidated = 0;
+
+    LifeGoalProps();
+};
+
 class GoalsWindow : public ml::Window
 {
     public : 
@@ -25,6 +37,21 @@ class GoalsWindow : public ml::Window
         void save();
         void read();
 
+        json data();
+        void readData(const json& data);
+
+        std::string lifeGoalsPrompt();
+        void copyLifeGoalsPromptInClipboard();
+
+        //T is a sruct like LifeGoalProps
+        template<typename T>
+            void validate(T& t, ml::Box* box)
+            {
+                t.validated = true;
+                t.lastValidated = ml::time::now();
+                box->disable();
+            }
+
     protected : 
         void _setEvents();
         
@@ -34,11 +61,16 @@ class GoalsWindow : public ml::Window
         void _create30dTab();
         void _create7dTab();
 
+        void _createCmds();
+        void _createMenus();
+
         std::unique_ptr<ml::Tabs> _tabs;
         ml::TabButton* _lifeTabButton = nullptr;
         ml::TabButton* _yearTabButton = nullptr;
         ml::TabButton* _90dTabButton = nullptr;
         ml::TabButton* _30dTabButton = nullptr;
         ml::TabButton* _7dTabButton = nullptr;
+
+        LifeGoalProps _lifeGoalsProps;
 
 };

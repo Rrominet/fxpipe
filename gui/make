@@ -5,11 +5,32 @@ from ml.boilerplate import cpp
 from ml import fileTools as ft
 import os
 import sys
+import subprocess
+import shutil
 sys.path.append("../")
+
+def mdToHtmls() : 
+    if os.path.isdir("./html") :
+        shutil.rmtree("./html")
+
+    mds = os.listdir("../src/md")
+    os.makedirs("./html", exist_ok=True)
+    shutil.copyfile(fxhtml + "/fxhtml.css", "./html/style.css")
+    for md in mds : 
+        cmd = ["/media/romain/Donnees/ProgramLinux/bin/mdtohtml", "../src/md/" + md]
+        subprocess.run(cmd)
+        os.rename("../src/md/" + ft.baseName(md) + ".html", "./html/" + ft.baseName(md) + ".html")
 
 fm = "/media/romain/Donnees/Programmation/cpp/frameworks"
 libs = "/media/romain/Donnees/Programmation/cpp/libs"
 prjs = "/media/romain/Donnees/Programmation/cpp/cmake"
+
+b = build.create("fxpipe", sys.argv)
+
+if b.release : 
+    fxhtml = "/opt/fxhtml"
+else : 
+    fxhtml = "../../../fxhtml/build"
 
 for arg in sys.argv:
     if "libs=" in arg:
@@ -30,6 +51,7 @@ for arg in sys.argv:
 cpp.generate("../src")
 
 includes = [
+    fxhtml + "/api",
     "../src",
     libs + "/json",
     libs + "/eigen",
@@ -47,32 +69,32 @@ libs = [
 
 defs = ["NO_LOG"]
 
-cpp = build.create("fxpipe", sys.argv)
-cpp.static = False
-cpp.includes = includes
-cpp.addToSrcs(srcs)
-cpp.addToLibs(libs)
-cpp.definitions += defs
-cpp.addInstalledLibrary("gtkmm-4.0")
+b.static = False
+b.includes = includes
+b.addToSrcs(srcs)
+b.addToLibs(libs)
+b.definitions += defs
+b.addInstalledLibrary("gtkmm-4.0")
 
 # sudo apt install libwebkitgtk-6.0-dev
-cpp.addInstalledLibrary("webkitgtk-6.0")
+b.addInstalledLibrary("webkitgtk-6.0")
 
-cpp.addToLibs("stdc++fs")
-if not cpp.release : 
-    cpp.addToLibs([
+b.addToLibs("stdc++fs")
+if not b.release : 
+    b.addToLibs([
         fm + "/build/libmlapi.so",
         prjs + "/mlgui.2/build/libmlgui.so",
         ])
 
-elif cpp.release : 
-    cpp.addProject([
+elif b.release : 
+    b.addProject([
         "/opt/mlapi/lib",
         "/opt/mlgui/lib",
         ])
 
 if("clean" in sys.argv or "clear" in sys.argv):
-    cpp.clean()
+    b.clean()
     exit()
 else:
-    cpp.build()
+    mdToHtmls()
+    b.build()

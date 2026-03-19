@@ -261,7 +261,7 @@ void FxPipe::createCommands()
 
     this->createSearchCommand();
 
-    auto goalscmd = this->cmds().createCommand<ml::GuiCommand>("Mange Goals", "show-goals", [this](const std::any&){this->showGoals();});
+    auto goalscmd = this->cmds().createCommand<ml::GuiCommand>("Manage Goals", "show-goals", [this](const std::any&){this->showGoals();});
 }
 
 void FxPipe::createSelectionCommands()
