@@ -40,6 +40,8 @@ FxPipe::FxPipe(int argc,char *argv[]) : ml::App(argc,argv)
     this->openLastProject();
 
     this->setAbout("fxpipe aim to be a project tracker that is easily extensible and easy to use for the artists, developers, production managers and clients.\n\nIt's written in C++ and based on the fxos-gui library.\nIt uses a server-client architecture approach that let you bind any other gui you want to the server process.\n\nMore infos on https://fxos.com/fxpipe.\nWritten by Romain Gilliot from Motion Live.\n(part of the fxos ecosystem)");
+
+    this->initGoals();
 }
 
 void FxPipe::setEvents()
@@ -541,6 +543,7 @@ void FxPipe::onNewProject()
 {
     _currentFile = "";
     this->deserialize(json::object());
+    _projectSettings = json::object();
     if (_projectSettingsWindow)
         _projectSettingsWindow->reset();
 }
@@ -969,9 +972,22 @@ void FxPipe::createSearchCommand()
     _searchCmd->setSync(true);
 }
 
+void FxPipe::initGoals()
+{
+    _goalsWindow = this->createWindow<GoalsWindow>(_fxpipeW).get();	
+    this->queue([this]{
+        _goalsWindow->hide(); 
+    });
+    auto f = [this]{
+        _goalsWindow->checkForPeriodPassed();
+    };
+
+    this->setTimeout(f, 5000);
+}
+
 void FxPipe::showGoals()
 {
-    this->createOrShowWindow(&_goalsWindow);
+    _goalsWindow->show();
 }
 
 namespace fxpipe

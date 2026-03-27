@@ -89,6 +89,7 @@ class FxPipe : public ml::App
         void sendSearch(const std::string& text);
         void createSearchCommand();
 
+        void initGoals();
         void showGoals();
 
     private : 

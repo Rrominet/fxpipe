@@ -8,6 +8,8 @@ cp -v ./version /opt/fxpipe/version
 cp -v ./dependencies /opt/fxpipe/dependencies
 cp -v ./fxpipe.css /opt/fxpipe/fxpipe.css
 
+cp -rv ./html /opt/fxpipe/html
+
 rm -fv /usr/local/bin/fxpipe
 ln -s /opt/fxpipe/fxpipe /usr/local/bin/fxpipe
 

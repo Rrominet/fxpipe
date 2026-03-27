@@ -12,17 +12,29 @@ namespace ml
     class Label;
 }
 
-struct LifeGoalProps
+struct Goal 
+{
+    ml::StringProperty objectives;
+    bool validated = false;
+    int64_t lastValidated = 0;
+
+    Goal();
+    virtual ~Goal(){}
+};
+
+struct LifeGoalProps : public Goal
 {
     ml::StringProperty context; 
     ml::StringProperty preflightsQuestions;
     ml::StringProperty goalsFilers;
-    ml::StringProperty goals;
-    bool validated = false;
-    int64_t lastValidated = 0;
 
     LifeGoalProps();
 };
+
+struct YearlyGoalProps : public Goal{};
+struct NinetyDaysGoalProps : public Goal{};
+struct ThirtyDaysGoalProps : public Goal{};
+struct SevenDaysGoalProps : public Goal{};
 
 class GoalsWindow : public ml::Window
 {
@@ -52,6 +64,16 @@ class GoalsWindow : public ml::Window
                 box->disable();
             }
 
+        //T is a struct like LifeGoalProps
+        template<typename T>
+            void unvalidate(T& t, ml::Box* box)
+            {
+                t.validated = false;
+                box->enable();
+            }
+
+        void checkForPeriodPassed();
+
     protected : 
         void _setEvents();
         
@@ -72,5 +94,9 @@ class GoalsWindow : public ml::Window
         ml::TabButton* _7dTabButton = nullptr;
 
         LifeGoalProps _lifeGoalsProps;
+        YearlyGoalProps _yearlyGoalsProps;
+        NinetyDaysGoalProps _90dGoalsProps;
+        ThirtyDaysGoalProps _30dGoalsProps;
+        SevenDaysGoalProps _7dGoalsProps;
 
 };
