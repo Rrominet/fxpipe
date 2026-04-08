@@ -975,9 +975,6 @@ void FxPipe::createSearchCommand()
 void FxPipe::initGoals()
 {
     _goalsWindow = this->createWindow<GoalsWindow>(_fxpipeW).get();	
-    this->queue([this]{
-        _goalsWindow->hide(); 
-    });
     auto f = [this]{
         _goalsWindow->checkForPeriodPassed();
     };

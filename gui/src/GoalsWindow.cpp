@@ -187,6 +187,7 @@ void GoalsWindow::init()
     _7dTabButton->setActive(true);
 
     _setEvents();
+    _stayHiddenFirstRun = true;
 
     this->read();
 }
