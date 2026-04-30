@@ -1,10 +1,8 @@
-:root {
-    --subtask-color : #292929;
-    --done-color : #228855;
-    --subdone-color : #117744;
-    --selected-color: #1199aa;
-    --active-color : #66ddff;
-}
+@define-color subtask-color #292929;
+@define-color done-color #228855;
+@define-color subdone-color #117744;
+@define-color selected-color #1199aa;
+@define-color active-color #66ddff;
 
 .taskview
 {
@@ -13,7 +11,7 @@
 
 .task
 {
-    background-color : var(--list-background-color);
+    background-color : @list-background-color;
     border-radius : 5px;
     padding : 0;
     margin-top : 4px;
@@ -36,7 +34,7 @@
 
 .task:hover
 {
-    background-color : var(--hover-background-color);
+    background-color : @hover-background-color;
 }
 
 .task:first-child
@@ -82,7 +80,7 @@
 
 .task .status.done
 {
-    background-color : var(--done-color);
+    background-color : @done-color;
 }
 
 .task .status.need-review,
@@ -114,12 +112,12 @@
 
 .task.selected
 {
-    outline-color :  var(--selected-color);
+    outline-color :  @selected-color;
 }
 
 .task.active
 {
-    outline-color :  var(--active-color);
+    outline-color :  @active-color;
 }
 
 label.nothing-yet
@@ -148,7 +146,7 @@ label.nothing-yet
 .taskview.child
 {
     font-size: 0.8em;
-    background-color : var(--list-background-color);
+    background-color : @list-background-color;
     border-radius : 20px;
 }
 

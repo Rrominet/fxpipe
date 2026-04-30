@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python3
 
 from ml import build
 from ml.boilerplate import cpp
@@ -9,8 +9,8 @@ sys.path.append("../")
 
 cpp.generate("../src")
 
-fm = "/media/romain/Donnees/Programmation/cpp/frameworks"
-libs = "/media/romain/Donnees/Programmation/cpp/libs"
+fm = "../../../../frameworks"
+libs = "../../../../libs"
 
 for arg in sys.argv:
     if "libs=" in arg:
@@ -35,14 +35,9 @@ b = build.create("fxpipe-core", sys.argv)
 b.includes = includes
 b.addToSrcs(srcs)
 
-if not b.release : 
-    b.addToLibs([
-        "/media/romain/Donnees/Programmation/cpp/frameworks/build/libmlapi.so",
-        ])
-elif b.release : 
-    b.addProject("/opt/mlapi/lib")
-
-#b.definitions += ["NO_LOG"]
+b.addToLibs("stdc++fs")
+b.addToLibs("boost_filesystem")
+b.addToLibs(fm + "/build/libmlapi.a")
 
 if ("clean" in sys.argv or "clear" in sys.argv) :
     b.clean()

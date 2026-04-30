@@ -21,16 +21,13 @@ def mdToHtmls() :
         subprocess.run(cmd)
         os.rename("../src/md/" + ft.baseName(md) + ".html", "./html/" + ft.baseName(md) + ".html")
 
-fm = "/media/romain/Donnees/Programmation/cpp/frameworks"
-libs = "/media/romain/Donnees/Programmation/cpp/libs"
-prjs = "/media/romain/Donnees/Programmation/cpp/cmake"
+fm = "../../../../frameworks"
+libs = "../../../../libs"
+prjs = "../../.."
 
 b = build.create("fxpipe", sys.argv)
 
-if b.release : 
-    fxhtml = "/opt/fxhtml"
-else : 
-    fxhtml = "../../../fxhtml/build"
+fxhtml = "../../../fxhtml/build"
 
 for arg in sys.argv:
     if "libs=" in arg:
@@ -80,21 +77,13 @@ b.addInstalledLibrary("gtkmm-4.0")
 b.addInstalledLibrary("webkitgtk-6.0")
 
 b.addToLibs("stdc++fs")
-if not b.release : 
-    b.addToLibs([
-        fm + "/build/libmlapi.so",
-        prjs + "/mlgui.2/build/libmlgui.so",
-        ])
-
-elif b.release : 
-    b.addProject([
-        "/opt/mlapi/lib",
-        "/opt/mlgui/lib",
-        ])
+b.addToLibs("boost_filesystem")
+b.addToLibs(fm + "/build/libmlapi.a")
+b.addToLibs(prjs + "/mlgui.2/build/libmlgui.a")
 
 if("clean" in sys.argv or "clear" in sys.argv):
     b.clean()
     exit()
 else:
-    mdToHtmls()
+    #mdToHtmls()
     b.build()

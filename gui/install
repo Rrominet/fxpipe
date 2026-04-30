@@ -4,8 +4,10 @@ mkdir /opt/fxpipe
 cp -v ./fxpipe /opt/fxpipe/fxpipe
 chmod +x /opt/fxpipe/fxpipe
 
+cp -v ../../core/build/fxpipe-core /opt/fxpipe/fxpipe-core
+chmod +x /opt/fxpipe/fxpipe-core
+
 cp -v ./version /opt/fxpipe/version
-cp -v ./dependencies /opt/fxpipe/dependencies
 cp -v ./fxpipe.css /opt/fxpipe/fxpipe.css
 
 cp -rv ./html /opt/fxpipe/html
