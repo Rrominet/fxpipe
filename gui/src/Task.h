@@ -41,7 +41,7 @@ class Task
 
         void draw(ml::Box* parent);
         void setStatus(Status status, bool sendToBackend=false);
-        void setPriority(Priority priority);
+        void setPriority(Priority priority, bool sendToBackend=false);
 
         Status status() const;
         Priority priority() const;
@@ -52,7 +52,7 @@ class Task
         void removeCssClass(const std::string& cls);
 
         void incrementStatus(int inc, bool sendToBackend=false);
-        void incrementPriority(int inc);
+        void incrementPriority(int inc, bool sendToBackend=false);
 
         static std::string statusAsString(Status status);
         static std::string priorityAsString(Priority priority);

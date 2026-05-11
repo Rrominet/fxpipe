@@ -20,3 +20,7 @@ Stats& stats(){return _stats;}
 const Stats& stats() const {return _stats;}
 
 
+ml::HistoryStack<json>& history(){return _history;}
+const ml::HistoryStack<json>& history() const {return _history;}
+
+

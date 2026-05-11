@@ -4,6 +4,8 @@
 #include "./ProjectSettings.h"
 #include "./Versions.h"
 #include "./Stats.h"
+#include "HistoryStack.h"
+#include "ipc.h"
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -89,9 +91,16 @@ class FxPipe
         json _getStats(const json& args);
         json _currentStatsDone(const json& args);
         json _search(const json& args);
+        json _undo(const json& args);
+        json _redo(const json& args);
 
     private : 
-        void reg();
+
+        ipc::ProcessCmd& _reg(const std::string& function,
+            const std::function<json(const json& args)>& todo,
+            const std::vector<std::string>& mendatoryKeys={},
+            const std::vector<std::string>& optionalKeys={});
+        void _reg();
         Tasks _tasks; //bp cg
         ml::Vec<std::string> _categories;
         ProjectSettings _projectSettings; //bp cg
@@ -104,6 +113,8 @@ class FxPipe
 
         std::string _currentProject; //bp cg
         Stats _stats; //bp cg
+
+        ml::HistoryStack<json> _history; //bp cg
 
     public : 
 #include "./FxPipe_gen.h"

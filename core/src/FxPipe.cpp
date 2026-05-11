@@ -1,8 +1,6 @@
 #include "./FxPipe.h"
 #include <memory>
-#include "ipc.h"
 #include "files.2/files.h"
-#include "mlprocess.h"
 
 #include "./Tasks.hpp"
 #include "str.h"
@@ -12,7 +10,7 @@ FxPipe* _instance = nullptr;
 FxPipe::FxPipe(int argc,char* argv[])
 {
     _instance = this;
-    this->reg();
+    _reg();
     this->treatArgs(argc, argv);
     ipc::receive();
 }
@@ -40,38 +38,87 @@ FxPipe* FxPipe::get()
     return _instance;
 }
 
-void FxPipe::reg()
+ipc::ProcessCmd& FxPipe::_reg(const std::string& function,
+        const std::function<json(const json& args)>& todo,
+        const std::vector<std::string>& mendatoryKeys,
+        const std::vector<std::string>& optionalKeys)
 {
-    ipc::reg("test", [this](const json& args){json _r; _r["message"] = "test worked."; ipc::success(_r); return _r;}); 
+    auto _todo = [this, todo](const json& args){
+        _history.push(this->serialize());
+        return todo(args);
+    };
+    return ipc::reg(function, _todo, mendatoryKeys, optionalKeys);    
+}
 
-    ipc::reg("create-or-modify-task", [this](const json& args){return _createTask(args);}, {}, {"id", "type", "category", "name", "description", "deadline", "color", "status", "priority", "price", "cmd", "files", "version", "includeFilesInCmd", "onchangedCmds", "parent", "archived"});
-    ipc::reg("task", [this](const json& args){return _task(args);}, {"id"}, {"parent"});
-    ipc::reg("remove-task", [this](const json& args){return _removeTask(args);}, {"id"});
+void FxPipe::_reg()
+{
+    _reg("test", [this](const json& args){json _r; _r["message"] = "test worked."; ipc::success(_r); return _r;}); 
 
-    ipc::reg("open", [this](const json& args){return _open(args);}, {"filepath"});
-    ipc::reg("save", [this](const json& args){return _save(args);}, {"filepath"});
+    _reg("create-or-modify-task", [this](const json& args){return _createTask(args);}, {}, {"id", "type", "category", "name", "description", "deadline", "color", "status", "priority", "price", "cmd", "files", "version", "includeFilesInCmd", "onchangedCmds", "parent", "archived"});
+    _reg("task", [this](const json& args){return _task(args);}, {"id"}, {"parent"});
+    _reg("remove-task", [this](const json& args){return _removeTask(args);}, {"id"});
 
-    ipc::reg("move", [this](const json& args){return _move(args);}, {"id", "movement"});
-    ipc::reg("swap", [this](const json& args){return _swap(args);}, {"from", "to"});
-    ipc::reg("reorder-tasks", [this](const json& args){return _reorderTasks(args);}, {"tasks"}, {"parent"});
+    _reg("open", [this](const json& args){return _open(args);}, {"filepath"});
+    _reg("save", [this](const json& args){return _save(args);}, {"filepath"});
 
-    ipc::reg("reparent", [this](const json& args){return _reparent(args);}, {"id"}, {"parent"});
-    ipc::reg("emit-task-event", [this](const json& args){return _emitTaskEvent(args);}, {"id","event"});
-    ipc::reg("get-all-data", [this](const json& args){return _getAllData(args);});
-    ipc::reg("new-project", [this](const json& args){return _newProject(args);});
-    ipc::reg("set-project", [this](const json& args){return _setProjectSettings(args);}, {}, {"name", "description", "versioningType"});
-    ipc::reg("project-settings", [this](const json& args){return _getProjectSettings(args);});
+    _reg("move", [this](const json& args){return _move(args);}, {"id", "movement"});
+    _reg("swap", [this](const json& args){return _swap(args);}, {"from", "to"});
+    _reg("reorder-tasks", [this](const json& args){return _reorderTasks(args);}, {"tasks"}, {"parent"});
 
-    ipc::reg("create-new-version", [this](const json& args){return _createNewVersion(args);}, {}, {"notes"});
-    ipc::reg("list-versions", [this](const json& args){return _listVersions(args);}, {}, {"quantity"});
+    _reg("reparent", [this](const json& args){return _reparent(args);}, {"id"}, {"parent"});
+    _reg("emit-task-event", [this](const json& args){return _emitTaskEvent(args);}, {"id","event"});
+    _reg("get-all-data", [this](const json& args){return _getAllData(args);});
+    _reg("new-project", [this](const json& args){return _newProject(args);});
+    _reg("set-project", [this](const json& args){return _setProjectSettings(args);}, {}, {"name", "description", "versioningType"});
+    _reg("project-settings", [this](const json& args){return _getProjectSettings(args);});
 
-    ipc::reg("stats", [this](const json& args){return _getStats(args);}, {}, {"quantity"});
-    ipc::reg("current-stats-done", [this](const json& args){return _currentStatsDone(args);});
-    ipc::reg("search", [this](const json& args){return _search(args);}, {"query"});
+    _reg("create-new-version", [this](const json& args){return _createNewVersion(args);}, {}, {"notes"});
+    _reg("list-versions", [this](const json& args){return _listVersions(args);}, {}, {"quantity"});
+
+    _reg("stats", [this](const json& args){return _getStats(args);}, {}, {"quantity"});
+    _reg("current-stats-done", [this](const json& args){return _currentStatsDone(args);});
+    _reg("search", [this](const json& args){return _search(args);}, {"query"});
+
+    ipc::reg("undo", [this](const json& args){return _undo(args);});
+    ipc::reg("redo", [this](const json& args){return _redo(args);});
 
 #ifdef mydebug
     ipc::logAll();
 #endif
+}
+
+json FxPipe::_undo(const json& args)
+{
+    json _r;
+    try
+    {
+        auto data = _history.undo();
+        this->deserialize(data);
+        _r["data"] = data;
+        ipc::success(_r);
+    }
+    catch (const std::exception& e)
+    {
+        ipc::error(_r, e.what());
+    }
+    return _r;
+}
+
+json FxPipe::_redo(const json& args)
+{
+    json _r;
+    try
+    {
+        auto data = _history.redo();
+        this->deserialize(data);
+        _r["data"] = data;
+        ipc::success(_r);
+    }
+    catch (const std::exception& e)
+    {
+        ipc::error(_r, e.what());
+    }
+    return _r;
 }
 
 //it's create or modify actually

@@ -78,8 +78,13 @@ b.addInstalledLibrary("webkitgtk-6.0")
 
 b.addToLibs("stdc++fs")
 b.addToLibs("boost_filesystem")
-b.addToLibs(fm + "/build/libmlapi.a")
-b.addToLibs(prjs + "/mlgui.2/build/libmlgui.a")
+
+if "release" in sys.argv:
+    b.addToLibs(fm + "/build/libmlapi.a")
+    b.addToLibs(prjs + "/mlgui.2/build/libmlgui.a")
+else : 
+    b.addToLibs(fm + "/build/libmlapi_debug.a")
+    b.addToLibs(prjs + "/mlgui.2/build/libmlgui_debug.a")
 
 if("clean" in sys.argv or "clear" in sys.argv):
     b.clean()

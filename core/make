@@ -37,7 +37,11 @@ b.addToSrcs(srcs)
 
 b.addToLibs("stdc++fs")
 b.addToLibs("boost_filesystem")
-b.addToLibs(fm + "/build/libmlapi.a")
+
+if "release" in sys.argv:
+    b.addToLibs(fm + "/build/libmlapi.a")
+else :
+    b.addToLibs(fm + "/build/libmlapi_debug.a")
 
 if ("clean" in sys.argv or "clear" in sys.argv) :
     b.clean()

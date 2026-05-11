@@ -58,7 +58,9 @@ void FxPipe::createCommands()
 //  cmd->setKeybind("ctrl n");
 //  cmd->setExec([this](const std::any&){auto w = this->createWindow<CommandWindow>(_main); w->show();});
 
-
+    lg2("Commands", &_cmds);
+    lg2("Commands _commands", &_cmds.commands());
+    lg2("Commands _commands", &_cmds.commands());
     auto cmd = _cmds.createCommand<ml::GuiCommand>("Create Task", "create-task");
     cmd->setHelp("Open the Window to create a new ask...");
     cmd->setKeybind("alt a");
@@ -218,6 +220,11 @@ void FxPipe::createCommands()
     cmd = this->cmds().createCommand<ml::GuiCommand>("Set Project Settings", "open-project-settings", [this](const std::any&){this->showProjectSettings();});
     cmd->setKeybind("alt s");
 
+    cmd = this->cmds().createCommand<FxPipeCommand>("Show Edit Menu", "task-show-edit-menu");
+    cmd->setExec([this](const std::any&){_fxpipeW->showMenu("edit");});
+    cmd->setHelp("Show the edit menu.");
+    cmd->setKeybind("E");
+
     cmd = this->cmds().createCommand<FxPipeCommand>("Show View Menu", "task-show-view-menu");
     cmd->setExec([this](const std::any&){_fxpipeW->showMenu("view");});
     cmd->setHelp("Show the view menu.");
@@ -264,6 +271,18 @@ void FxPipe::createCommands()
     this->createSearchCommand();
 
     auto goalscmd = this->cmds().createCommand<ml::GuiCommand>("Manage Goals", "show-goals", [this](const std::any&){this->showGoals();});
+
+    auto undo_redo_cb = [this](const json& res)
+    {
+        if (!res.contains("data"))
+            return;
+        this->deserialize(res["data"]);
+    };
+    auto undo = this->createBackendCommand(_backend, "Undo", "undo", "undo", json::object(), undo_redo_cb);
+    undo->setKeybind("ctrl z");
+
+    auto redo = this->createBackendCommand(_backend, "Redo", "redo", "redo", json::object(), undo_redo_cb);
+    redo->setKeybind("ctrl y");
 }
 
 void FxPipe::createSelectionCommands()
@@ -313,6 +332,36 @@ void FxPipe::createViewCommands()
 
     this->cmds().createCommand<ml::GuiCommand>("Show All", "view-show-all", 
             [this](const std::any& args){_fxpipeW->showAllTasks();});
+
+    this->cmds().createCommand<ml::GuiCommand>("Show Only Done", "view-show-only-done", 
+            [this](const std::any& args){_fxpipeW->showOnlyTasks(DONE);});
+
+    this->cmds().createCommand<ml::GuiCommand>("Show Only Started", "view-show-only-started", 
+            [this](const std::any& args){_fxpipeW->showOnlyTasks(STARTED);});
+
+    this->cmds().createCommand<ml::GuiCommand>("Show Only Archived", "view-show-only-archived", 
+            [this](const std::any& args){_fxpipeW->showOnlyTasks(ARCHIVED);});
+
+    this->cmds().createCommand<ml::GuiCommand>("Show Only Low", "view-show-only-low", 
+            [this](const std::any& args){_fxpipeW->showOnlyTasks(LOW);});
+
+    this->cmds().createCommand<ml::GuiCommand>("Show Only Medium", "view-show-only-medium", 
+            [this](const std::any& args){_fxpipeW->showOnlyTasks(MEDIUM);});
+
+    this->cmds().createCommand<ml::GuiCommand>("Show Only High", "view-show-only-high", 
+            [this](const std::any& args){_fxpipeW->showOnlyTasks(HIGH);});
+
+    this->cmds().createCommand<ml::GuiCommand>("Show Only Urgent", "view-show-only-urgent", 
+            [this](const std::any& args){_fxpipeW->showOnlyTasks(URGENT);});
+
+    this->cmds().createCommand<ml::GuiCommand>("Show Only This Week", "view-show-only-this-week", 
+            [this](const std::any& args){_fxpipeW->showOnlyTasks(THIS_WEEK);});
+
+    this->cmds().createCommand<ml::GuiCommand>("Show Only This Month", "view-show-only-this-month", 
+            [this](const std::any& args){_fxpipeW->showOnlyTasks(THIS_MONTH);});
+
+    this->cmds().createCommand<ml::GuiCommand>("Show Only Today", "view-show-only-today", 
+            [this](const std::any& args){_fxpipeW->showOnlyTasks(TODAY);});
 }
 
 void FxPipe::createTaskCommands()

@@ -216,15 +216,14 @@ void Task::_onStatusWheel(ml::EventInfos& e)
         this->incrementStatus(-1, true);
     else
         this->incrementStatus(1, true);
-
 }
 
 void Task::_onPriorityWheel(ml::EventInfos& e)
 {
     if (e.dy < 0)
-        this->incrementPriority(-1);
+        this->incrementPriority(-1, true);
     else
-        this->incrementPriority(1);
+        this->incrementPriority(1, true);
 }
 
 void Task::toggleBody()
@@ -255,13 +254,11 @@ void Task::setStatus(Status status, bool sendToBackend)
     _status->addCssClass("status");
     _status->addCssClass(str::clean(s, true));
 
-    if (!sendToBackend)
-        return;
-
-    this->sendUptadeToBackend();
+    if (sendToBackend)
+        this->sendUptadeToBackend();
 }
 
-void Task::setPriority(Priority priority)
+void Task::setPriority(Priority priority, bool sendToBackend)
 {
     _data["priority"] = priority;
     _priorityVal = priority;
@@ -270,7 +267,8 @@ void Task::setPriority(Priority priority)
     _priority->clearCssClasses();
     _priority->addCssClass("priority");
     _priority->addCssClass(str::clean(s, true));
-    this->sendUptadeToBackend();
+    if (sendToBackend)
+        this->sendUptadeToBackend();
 }
 
 void Task::incrementStatus(int inc, bool sendToBackend)
@@ -284,7 +282,7 @@ void Task::incrementStatus(int inc, bool sendToBackend)
     this->setStatus((Status)current, sendToBackend);
 }
 
-void Task::incrementPriority(int inc)
+void Task::incrementPriority(int inc, bool sendToBackend)
 {
     int current = (int)	_priorityVal;
     current += inc;
@@ -292,7 +290,7 @@ void Task::incrementPriority(int inc)
         current = (int)Task::URGENT;
     if (current > (int)Task::URGENT)
         current = 0;
-    this->setPriority((Priority)current);
+    this->setPriority((Priority)current, sendToBackend);
 }
 
 void Task::addCssClass(const std::string& cls)
@@ -339,12 +337,12 @@ ml::Ret<Task*> Task::child(const std::string& id)
 void Task::setProgress(float progress)
 {
     auto cssPgr = progress * 100;	
-    std::string donevar = "var(--done-color)";
-    std::string bgvar = "var(--list-background-color)";
+    std::string donevar = "@done-color";
+    std::string bgvar = "@list-background-color";
     if (_parentView && _parentView->taskParent())
     {
-        bgvar = "var(--subdone-color)";
-        bgvar = "var(--subtask-color)";
+        bgvar = "@subdone-color";
+        bgvar = "@subtask-color";
     }
     std::string css = "linear-gradient(90deg, " + donevar + " " + std::to_string(cssPgr) + "%, " + bgvar + " " + std::to_string(cssPgr) + "%)";
     lg(css);

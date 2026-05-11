@@ -25,7 +25,10 @@ class MainWindow : public ml::Window
         TaskView* taskView() { return _taskView.get(); }
         void updateProjectSettings();
         void toggleTasks(TaskStateType type);
+        void showOnlyTasks(TaskStateType type);
         void showAllTasks();
+        void hideAllTasks();
+        void setAllTasksVisible(bool visible);
 
     protected : 
         void _setEvents();

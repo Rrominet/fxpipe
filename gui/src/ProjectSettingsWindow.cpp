@@ -1,8 +1,10 @@
 #include "./ProjectSettingsWindow.h"
+#include <unordered_map>
+
 #include "./FxPipe.h"
 #include "./MainWindow.h"
 #include "mlgui.2/src/Label.h"
-#include <unordered_map>
+#include "mlgui.2/src/GuiBackendCommand.h"
 
 #include "mlgui.2/src/Scrollable.hpp"
 
@@ -58,6 +60,10 @@ void ProjectSettingsWindow::init()
 
     auto valid = fxpipe::get()->createBackendCommand(fxpipe::get()->backend(), "Set Project", "set-project", "set-project",
             [this]{return this->data();}, cb);
+
+    lg(valid.get());
+    lg(valid->name());
+    lg(valid->id());
 
     _main->appendCommand((ml::Command*)valid.get());
     _setEvents();

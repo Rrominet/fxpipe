@@ -10,5 +10,6 @@ enum TaskStateType
     URGENT,
     THIS_WEEK,
     THIS_MONTH,
-    TODAY
+    TODAY,
+    NONE
 };

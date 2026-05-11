@@ -56,6 +56,9 @@ void MainWindow::createMenus()
     file->addCommand("quit");
 
     auto edit = ml::app()->menus().create("edit", "Edit");
+    edit->addCommand("undo");
+    edit->addCommand("redo");
+    edit->addSeparator();
     edit->addCommand("create-task");
     edit->addCommand("modify-task");
     edit->addCommand("open-task");
@@ -82,17 +85,26 @@ void MainWindow::createMenus()
     view->addCommand("view-toggle-from-state-done");
     view->addCommand("view-toggle-from-state-started");
     view->addCommand("view-toggle-from-state-archived");
-    view->addSeparator();
     view->addCommand("view-toggle-from-state-low");
     view->addCommand("view-toggle-from-state-medium");
     view->addCommand("view-toggle-from-state-high");
     view->addCommand("view-toggle-from-state-urgent");
-    view->addSeparator();
     view->addCommand("view-toggle-from-state-this-week");
     view->addCommand("view-toggle-from-state-this-month");
     view->addCommand("view-toggle-from-state-today");
     view->addSeparator();
     view->addCommand("view-show-all");
+    view->addSeparator();
+    view->addCommand("view-show-only-done");
+    view->addCommand("view-show-only-started");
+    view->addCommand("view-show-only-archived");
+    view->addCommand("view-show-only-low");
+    view->addCommand("view-show-only-medium");
+    view->addCommand("view-show-only-high");
+    view->addCommand("view-show-only-urgent");
+    view->addCommand("view-show-only-this-week");
+    view->addCommand("view-show-only-this-month");
+    view->addCommand("view-show-only-today");
     view->addSeparator();
     view->addCommand("refresh-from-backend");
 
@@ -213,19 +225,42 @@ void MainWindow::toggleTasks(TaskStateType type)
     }
 }
 
+void MainWindow::showOnlyTasks(TaskStateType type)
+{
+    if(type == NONE)
+    {
+        this->showAllTasks();
+        return;
+    }
+
+    this->hideAllTasks();
+    this->toggleTasks(type);
+}
+
+
 void MainWindow::showAllTasks()
 {
-    _done_visible = true;
-    _started_visible = true;
-    _archived_visible = true;
-    _low_visible = true;
-    _medium_visible = true;
-    _high_visible = true;
-    _urgent_visible = true;
-    _this_week_visible = true;
-    _this_month_visible = true;
-    _today_visible = true;
-    
+    this->setAllTasksVisible(true);
+}
+
+void MainWindow::hideAllTasks()
+{
+    this->setAllTasksVisible(false);
+}
+
+void MainWindow::setAllTasksVisible(bool visible)
+{
+    _done_visible = visible;
+    _started_visible = visible;
+    _archived_visible = visible;
+    _low_visible = visible;
+    _medium_visible = visible;
+    _high_visible = visible;
+    _urgent_visible = visible;
+    _this_week_visible = visible;
+    _this_month_visible = visible;
+    _today_visible = visible;
+
     for (auto t : fxpipe::get()->allTasks())
-        t->setVisible(true);
+        t->setVisible(visible);
 }
