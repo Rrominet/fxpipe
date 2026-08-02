@@ -16,10 +16,10 @@
 #include "./MainWindow.h"
 
 std::unordered_map<Task::Status, std::string> status_map = {
-    {Task::NOT_STARTED, "Not started"}, 
+    {Task::NOT_STARTED, "Not Started"}, 
     {Task::STARTED, "Started"}, 
-    {Task::NEED_REVIEW, "Need review"}, 
-    {Task::NEED_RETAKES, "Need retakes"}, 
+    {Task::NEED_REVIEW, "Need Review"}, 
+    {Task::NEED_RETAKES, "Need Retakes"}, 
     {Task::DONE, "Done"}, 
 };
 
@@ -45,20 +45,26 @@ std::string Task::priorityAsString(Priority priority)
 
 Task::Status Task::stringAsStatus(const std::string& s)
 {
-    for (auto it = status_map.begin(); it != status_map.end(); it++)
+    auto searched = s;
+    searched = str::clean(s, true);
+    for (const auto& p : status_map)
     {
-        if (it->second == s)
-            return it->first;
+        lg(searched << " == " << str::clean(p.second, true));
+        if (str::clean(p.second, true) == searched)
+            return p.first;
     }
     return Task::NOT_STARTED;	
 }
 
 Task::Priority Task::stringAsPriority(const std::string& s)
 {
-    for (auto it = status_priorities.begin(); it != status_priorities.end(); it++)
+    auto searched = s;
+    searched = str::clean(s, true);
+    for (const auto& p : status_priorities)
     {
-        if (it->second == s)
-            return it->first;
+        lg(searched << " == " << str::clean(p.second, true));
+        if (str::clean(p.second, true) == searched)
+            return p.first;
     }
     return Task::LOW;
 }

@@ -72,6 +72,7 @@ b.addToSrcs(srcs)
 b.addToLibs(libs)
 b.definitions += defs
 b.addInstalledLibrary("gtkmm-4.0")
+b.addInstalledLibrary("epoxy")
 
 # sudo apt install libwebkitgtk-6.0-dev
 b.addInstalledLibrary("webkitgtk-6.0")

@@ -146,6 +146,8 @@ json TaskSettingsWindow::data()
 
 Task::Status TaskSettingsWindow::status()
 {
+    lg("TaskSettingsWindow::status " << _status.value());
+    lg("TaskSettingsWindow::status " << Task::stringAsStatus(_status.value()));
     return Task::stringAsStatus(_status.value());	
 }
 

@@ -92,6 +92,10 @@ class FxPipe : public ml::App
         void initGoals();
         void showGoals();
 
+        void copyTasks(const ml::Vec<Task*>& tasks);
+        void pastTasks(const json& data, TaskView* view);
+        void pastFromClipboard(TaskView* view);
+
     private : 
         MainWindow* _fxpipeW=nullptr; //bp cg
 

@@ -15,6 +15,7 @@
 #include "./FxPipeCommand.h"
 #include "./OpenRecentWindow.h"
 #include "./GoalsWindow.h"
+#include "ipc.h"
 
 namespace fxpipe
 {
@@ -256,7 +257,7 @@ void FxPipe::createCommands()
     cmd = this->cmds().createCommand<ml::GuiCommand>("New Version", "new-version-gui");
     cmd->setExec(nversion);
     cmd->setHelp("Create a new version of the project.");
-    cmd->setKeybind("ctrl v");
+    cmd->setKeybind("alt v");
 
     cmd = this->cmds().createCommand<ml::GuiCommand>("Search", "show-search");
     cmd->setExec([this](const std::any&){this->toggleSearch();});
@@ -371,6 +372,21 @@ void FxPipe::createTaskCommands()
     cmd->setHelp("Show/Hide the Task content and its subtasks.");
     cmd->setKeybind("h");
 
+    cmd = this->cmds().createCommand<FxPipeCommand>("Mark as Not Started", "task-set-not-started");
+    cmd->setExecForSelectedTasks([this](Task* task){task->setStatus(Task::NOT_STARTED, true);});
+    cmd->setHelp("Mark the task as not-started.");
+    cmd->toQueue().push([this]{this->updateAllProgressesFromBackend();});
+
+    cmd = this->cmds().createCommand<FxPipeCommand>("Mark as Need Review", "task-set-need-review");
+    cmd->setExecForSelectedTasks([this](Task* task){task->setStatus(Task::NEED_REVIEW, true);});
+    cmd->setHelp("Mark the task as Need Review.");
+    cmd->toQueue().push([this]{this->updateAllProgressesFromBackend();});
+
+    cmd = this->cmds().createCommand<FxPipeCommand>("Mark as Need Retakes", "task-set-need-retakes");
+    cmd->setExecForSelectedTasks([this](Task* task){task->setStatus(Task::NEED_RETAKES, true);});
+    cmd->setHelp("Mark the task as Need Retakes.");
+    cmd->toQueue().push([this]{this->updateAllProgressesFromBackend();});
+
     cmd = this->cmds().createCommand<FxPipeCommand>("Mark as Done", "task-set-done");
     cmd->setExecForSelectedTasks([this](Task* task){task->setStatus(Task::DONE, true);});
     cmd->setHelp("Mark the task as done.");
@@ -460,6 +476,23 @@ void FxPipe::createTaskCommands()
     cmd->setHelp("Duplicate the selected tasks");
     cmd->setKeybind("ctrl d");
 
+    cmd = this->cmds().createCommand<FxPipeCommand>("Copy", "task-copy");
+    cmd->setExecForSelectedTasks([this](const ml::Vec<Task*>& tasks){this->copyTasks(tasks);});
+    cmd->setHelp("Copy the selected tasks in the clipboard");
+    cmd->setKeybind("ctrl c");
+
+    cmd = this->cmds().createCommand<FxPipeCommand>("Paste", "task-past");
+    cmd->setExecGlobal([this]{
+            if (_activeTask)
+                    this->pastFromClipboard(_activeTask->tasksView());
+            else if (_activeTaskView)
+                    this->pastFromClipboard(_activeTaskView);
+            else
+                this->pastFromClipboard(fxpipeW()->taskView());
+            });
+    cmd->setHelp("Past the copied task in the active view");
+    cmd->setKeybind("ctrl v");
+
     cmd = this->cmds().createCommand<FxPipeCommand>("Move up", "task-move-up");
     cmd->setExecForActiveTaskView([this](TaskView* view){view->moveSelectedTasks(-1);});
     cmd->setHelp("Move the tasks up.");
@@ -468,6 +501,64 @@ void FxPipe::createTaskCommands()
     cmd->setExecForActiveTaskView([this](TaskView* view){view->moveSelectedTasks(1);});
     cmd->setHelp("Move the tasks down.");
     cmd->setKeybind("ctrl Down");
+}
+
+void FxPipe::copyTasks(const ml::Vec<Task*>& tasks)
+{
+    json data = json::array();	
+    for (auto task : tasks)
+        data.push_back(task->data());
+    this->setClipboardText(data.dump());
+    fxpipeW()->setInfos("Copied " + std::to_string(tasks.size()) + " tasks.");
+}
+
+void FxPipe::pastTasks(const json& data, TaskView* view)
+{
+    if (!data.is_array())	
+    {
+        this->error("Error while pasting from clipboard : data is not an array.");
+        return;
+    }
+
+    for (const auto& task : data)
+    {
+        json ndata = task;
+        ndata["id"] = str::random(20);
+        ndata["creationTime"] = ml::time::now();
+        view->createTask(ndata);
+    }
+
+    fxpipeW()->setInfos("Pasting " + std::to_string(data.size()) + " tasks. Updating back end...");
+    auto cb = [this, data](const json& res)
+    {
+        auto mth = [this, data, res]{
+            fxpipeW()->setInfos(std::to_string(data.size()) + " tasks pasted.");
+        };
+        this->queue(mth);
+    };
+    if (view->taskParent())
+        ipc::call(fxpipe::get()->backend(), "create-tasks", {{ "tasks", data }, {"parent", view->taskParent()->id()}}, cb, true);
+    else 
+        ipc::call(fxpipe::get()->backend(), "create-tasks", {{ "tasks", data }}, cb, true);
+}
+
+void FxPipe::pastFromClipboard(TaskView* view)
+{
+    auto oncb_rec = [this, view](const std::string& data_s)
+    {
+        if (data_s.empty())
+            return;
+        try	
+        {
+            json data = json::parse(data_s);
+            this->pastTasks(data, view);
+        }
+        catch(const std::exception& e)
+        {
+            this->error("Error while pasting from clipboard : " + _S(e.what()));
+        }
+    };
+    this->clipboardText(oncb_rec);
 }
 
 void FxPipe::createTaskViewCommands()

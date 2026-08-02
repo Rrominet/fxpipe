@@ -63,6 +63,9 @@ void MainWindow::createMenus()
     edit->addCommand("modify-task");
     edit->addCommand("open-task");
     edit->addSeparator();
+    edit->addCommand("task-copy");
+    edit->addCommand("task-past");
+    edit->addSeparator();
     edit->addCommand("select-all");
     edit->addCommand("deselect-all");
     edit->addSeparator();
@@ -76,8 +79,11 @@ void MainWindow::createMenus()
     edit->addCommand("task-reparent-up");
     edit->addSeparator();
     edit->addCommand("task-toggle-archived");
-    edit->addCommand("task-set-done");
+    edit->addCommand("task-set-not-started");
     edit->addCommand("task-set-started");
+    edit->addCommand("task-set-need-review");
+    edit->addCommand("task-set-need-retakes");
+    edit->addCommand("task-set-done");
 
     auto view = ml::app()->menus().create("view", "View");
     view->addCommand("show-search");
@@ -123,8 +129,14 @@ void MainWindow::createMenus()
     auto tskctx = ml::app()->menus().create("task-context", "Task Menu");
     tskctx->addCommand("create-task");
     tskctx->addSeparator();
-    tskctx->addCommand("task-set-done");
+    tskctx->addCommand("task-copy");
+    tskctx->addCommand("task-past");
+    tskctx->addSeparator();
+    tskctx->addCommand("task-set-not-started");
     tskctx->addCommand("task-set-started");
+    tskctx->addCommand("task-set-need-review");
+    tskctx->addCommand("task-set-need-retakes");
+    tskctx->addCommand("task-set-done");
     tskctx->addSeparator();
     tskctx->addCommand("task-open-gui-command");
     tskctx->addSeparator();

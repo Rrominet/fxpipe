@@ -73,6 +73,7 @@ class FxPipe
         //public client interface
     public : 
         json _createTask(const json& args);
+        json _createTasks(const json& args);
         json _task(const json& args);
         json _removeTask(const json& args);
         json _open(const json& args);

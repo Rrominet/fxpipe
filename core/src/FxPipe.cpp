@@ -55,6 +55,7 @@ void FxPipe::_reg()
     _reg("test", [this](const json& args){json _r; _r["message"] = "test worked."; ipc::success(_r); return _r;}); 
 
     _reg("create-or-modify-task", [this](const json& args){return _createTask(args);}, {}, {"id", "type", "category", "name", "description", "deadline", "color", "status", "priority", "price", "cmd", "files", "version", "includeFilesInCmd", "onchangedCmds", "parent", "archived"});
+    _reg("create-tasks", [this](const json& args){return _createTasks(args);}, {"tasks"}, {"parent"});
     _reg("task", [this](const json& args){return _task(args);}, {"id"}, {"parent"});
     _reg("remove-task", [this](const json& args){return _removeTask(args);}, {"id"});
 
@@ -164,6 +165,42 @@ json FxPipe::_createTask(const json& args)
     }
 
     _r["data"] = task->serialize();
+    ipc::success(_r);
+    return _r;
+}
+
+json FxPipe::_createTasks(const json& args)
+{
+    json _r;	
+
+    Tasks* tasks = &_tasks;
+    if (args.contains("parent") && args["parent"].get<std::string>() != "")
+    {
+        auto ret = this->task(args["parent"].get<std::string>());
+        if (!ret.success)
+        {
+            ipc::error(_r, ret.message);
+            return _r;
+        }
+
+        tasks = &ret.value->subtasks();
+    }
+
+    for (auto& t : args["tasks"])
+    {
+        if (t.contains("type"))
+        {
+            if (t["type"] == "Task")
+                tasks->createTask<Task>(t);
+        }
+        else 
+        {
+            lg("Subtasks ptr " << tasks);
+            tasks->createTask<Task>(t);
+        }
+    }
+
+    ipc::success(_r);
     return _r;
 }
 
