@@ -18,6 +18,7 @@ class ProjectSettingsWindow;
 class NewVersionWindow;
 class OpenRecentWindow;
 class GoalsWindow;
+class TimeTrackingWin;
 class FxPipe : public ml::App
 {
     public:
@@ -91,6 +92,7 @@ class FxPipe : public ml::App
 
         void initGoals();
         void showGoals();
+        void showTimeTracking();
 
         void copyTasks(const ml::Vec<Task*>& tasks);
         void pastTasks(const json& data, TaskView* view);
@@ -132,6 +134,7 @@ class FxPipe : public ml::App
         void _onActiveTaskChanged();
 
         GoalsWindow* _goalsWindow = nullptr;
+        TimeTrackingWin* _timeTrackingWin = nullptr;
 
     public : 
 #include "./FxPipe_gen.h"

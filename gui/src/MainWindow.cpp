@@ -116,6 +116,7 @@ void MainWindow::createMenus()
 
     auto tools = ml::app()->menus().create("tools", "Tools");
     tools->addCommand("show-goals");
+    tools->addCommand("show-time-tracking");
 
     auto help = ml::app()->menus().create("help", "Help");
     help->addCommand("about");

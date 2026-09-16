@@ -16,6 +16,7 @@
 #include "./OpenRecentWindow.h"
 #include "./GoalsWindow.h"
 #include "ipc.h"
+#include "./TimeTrackingWin.h"
 
 namespace fxpipe
 {
@@ -272,6 +273,7 @@ void FxPipe::createCommands()
     this->createSearchCommand();
 
     auto goalscmd = this->cmds().createCommand<ml::GuiCommand>("Manage Goals", "show-goals", [this](const std::any&){this->showGoals();});
+    auto timetrackingcmd = this->cmds().createCommand<ml::GuiCommand>("Manage Time Sessions", "show-time-tracking", [this](const std::any&){this->showTimeTracking();});
 
     auto undo_redo_cb = [this](const json& res)
     {
@@ -1119,12 +1121,17 @@ void FxPipe::initGoals()
         _goalsWindow->checkForPeriodPassed();
     };
 
-    this->setTimeout(f, 5000);
+    this->setTimeout(f, 2000);
 }
 
 void FxPipe::showGoals()
 {
     _goalsWindow->show();
+}
+
+void FxPipe::showTimeTracking()
+{
+    this->createOrShowWindow(&_timeTrackingWin)	;
 }
 
 namespace fxpipe

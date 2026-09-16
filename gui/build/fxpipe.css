@@ -115,10 +115,6 @@
     outline-color :  @selected-color;
 }
 
-.task.active
-{
-    outline-color :  @active-color;
-}
 
 label.nothing-yet
 {
@@ -201,4 +197,47 @@ label.nothing-yet
 .task.archived
 {
     filter : contrast(0.5) grayscale(1);
+}
+
+.sessions
+{
+    padding : .5em;
+}
+
+.session
+{
+    background-color : @list-background-color;
+    padding: 0 .5em;
+    border-radius: 5px;
+    outline : 1px solid;
+    outline-color : transparent;
+    transition : outline-color 0.05s;
+    margin-bottom : 5px
+}
+
+.session button
+{
+    margin-right: 0;
+}
+
+.session .name
+{
+    margin : 0;
+font-weight : bold;
+}
+
+.task.active,
+.session.active
+{
+    outline-color :  @active-color;
+}
+
+.session .duration
+{
+    font-style : italic;
+}
+
+.session.done
+{
+    background-color : @done-color;
 }

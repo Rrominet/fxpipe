@@ -86,6 +86,7 @@ if "release" in sys.argv:
 else : 
     b.addToLibs(fm + "/build/libmlapi_debug.a")
     b.addToLibs(prjs + "/mlgui.2/build/libmlgui_debug.a")
+    b.flags += ["-fsanitize=address,undefined" , "-fno-omit-frame-pointer"]
 
 if("clean" in sys.argv or "clear" in sys.argv):
     b.clean()
