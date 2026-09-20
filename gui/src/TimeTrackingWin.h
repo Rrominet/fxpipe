@@ -20,11 +20,13 @@ struct SessionGui
 {
     SessionGui() :  
         name("Session Name", "", "The name (or type) of the work session"),
-        duration("Duration", 8, 0, 1000, "The duration of the session in hours")
+        duration("Duration", 8, 0, 1000, "The duration of the session in hours"),
+        duration_done("Already done", 8, 0, 1000, "The duration that has already been done in hours")
     {}
 
     ml::StringProperty name;
     ml::FloatProperty duration; //in hours
+    ml::FloatProperty duration_done; //same, in hours
 };
 
 
@@ -72,6 +74,8 @@ class TimeTrackingWin : public ml::Window
         void createMenus();
 
         void createNewSession();
+        void modifySession();
+        void showModifySessionGui();
         void showMainUI();
 
         void redrawSessions();
@@ -81,7 +85,7 @@ class TimeTrackingWin : public ml::Window
         void setActiveSession(SessionDrawn* sessionDrawn);
         
         void startTrack(SessionData* sessionData);
-        void stopTrack();
+        void stopTrack(bool showError = true);
 
     protected : 
         ml::Box* _sessionsBox;
@@ -96,8 +100,12 @@ class TimeTrackingWin : public ml::Window
         int _activeSession = -1;
 
         int _beingTracked = -1;
+        SessionData* _modifiedSession = nullptr;
         SessionData* _dataFromIndex(int index);
         int _indexFromData(SessionData* sessionData);
 
         int _trackIntervalId = -1;
+        
+        ml::Button *_createBtn = nullptr;
+        ml::Button *_modifyBtn = nullptr;
 };

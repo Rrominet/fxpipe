@@ -54,11 +54,11 @@ void FxPipe::setEvents()
 
 void FxPipe::createCommands()
 {
-//  auto cmd = _cmds.createCommand<ml::GuiCommand>("Create Command", "create-cmd");
-//  cmd->aliases().concat({"ccmd", "ncmd"});
-//  cmd->setHelp("Create a new command to execute...");
-//  cmd->setKeybind("ctrl n");
-//  cmd->setExec([this](const std::any&){auto w = this->createWindow<CommandWindow>(_main); w->show();});
+    //  auto cmd = _cmds.createCommand<ml::GuiCommand>("Create Command", "create-cmd");
+    //  cmd->aliases().concat({"ccmd", "ncmd"});
+    //  cmd->setHelp("Create a new command to execute...");
+    //  cmd->setKeybind("ctrl n");
+    //  cmd->setExec([this](const std::any&){auto w = this->createWindow<CommandWindow>(_main); w->show();});
 
     lg2("Commands", &_cmds);
     lg2("Commands _commands", &_cmds.commands());
@@ -73,9 +73,9 @@ void FxPipe::createCommands()
     cmd->setKeybind("ctrl m");
     cmd->setExec([this](const std::any&){
             if (_activeTask)
-                this->showTaskSettings(_activeTask);
+            this->showTaskSettings(_activeTask);
             else 
-                this->error("No active task to edit.");
+            this->error("No active task to edit.");
             });
 
     cmd = _cmds.createCommand<ml::GuiCommand>("Open Project", "open");
@@ -264,7 +264,7 @@ void FxPipe::createCommands()
     cmd->setExec([this](const std::any&){this->toggleSearch();});
     cmd->setHelp("Search for a specific task... (toggle)");
     cmd->setKeybind("slash");
-    
+
     this->createSelectionCommands();
     this->createViewCommands();
     this->createTaskCommands();
@@ -397,7 +397,7 @@ void FxPipe::createTaskCommands()
 
     cmd = this->cmds().createCommand<FxPipeCommand>("Mark as Archived", "task-toggle-archived");
     cmd->setExecForSelectedTasks([this](Task* task){
-                task->toggleArchived();
+            task->toggleArchived();
             });
     cmd->setHelp("Toggle the task as archived.");
 
@@ -486,11 +486,11 @@ void FxPipe::createTaskCommands()
     cmd = this->cmds().createCommand<FxPipeCommand>("Paste", "task-past");
     cmd->setExecGlobal([this]{
             if (_activeTask)
-                    this->pastFromClipboard(_activeTask->tasksView());
+            this->pastFromClipboard(_activeTask->tasksView());
             else if (_activeTaskView)
-                    this->pastFromClipboard(_activeTaskView);
+            this->pastFromClipboard(_activeTaskView);
             else
-                this->pastFromClipboard(fxpipeW()->taskView());
+            this->pastFromClipboard(fxpipeW()->taskView());
             });
     cmd->setHelp("Past the copied task in the active view");
     cmd->setKeybind("ctrl v");
@@ -1116,12 +1116,15 @@ void FxPipe::createSearchCommand()
 
 void FxPipe::initGoals()
 {
-    _goalsWindow = this->createWindow<GoalsWindow>(_fxpipeW).get();	
-    auto f = [this]{
-        _goalsWindow->checkForPeriodPassed();
-    };
+    setTimeout([this]
+            {
+                _goalsWindow = this->createWindow<GoalsWindow>(_fxpipeW).get();	
+                auto f = [this]{
+                    _goalsWindow->checkForPeriodPassed();
+                };
 
-    this->setTimeout(f, 2000);
+                this->setTimeout(f, 2000);
+            }, 1000);
 }
 
 void FxPipe::showGoals()

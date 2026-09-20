@@ -10,7 +10,7 @@
 
 TimeTrackingWin::~TimeTrackingWin()
 {
-    this->stopTrack();	
+    this->stopTrack(false);	
 }
 
 void TimeTrackingWin::init()
@@ -28,7 +28,9 @@ void TimeTrackingWin::init()
     _newSessionBox->addCssClass("new-session");
     _newSessionBox->appendProp(&_sessionGui.name);
     _newSessionBox->appendProp(&_sessionGui.duration);
-    _newSessionBox->appendCommand(_cmds.command("create-new-session").get());
+    _newSessionBox->appendProp(&_sessionGui.duration_done);
+    _createBtn = _newSessionBox->appendCommand(_cmds.command("create-new-session").get()).get();
+    _modifyBtn = _newSessionBox->appendCommand(_cmds.command("modify-session").get()).get();
 
     _newSessionBox->hide();
 
@@ -46,6 +48,9 @@ void TimeTrackingWin::showNewSessionGui()
 {
     _newSessionBox->show();	
     _sessionsBox->hide();
+
+    _createBtn->show();
+    _modifyBtn->hide();
 
     ml::app()->setTimeout([this]{_sessionGui.name.focus();}, 100);
 }
@@ -100,9 +105,16 @@ void TimeTrackingWin::createCommands()
     auto c = _cmds.createCommand<ml::GuiCommand>("New Session", "new-session", shownewsession);
     c->setKeybind("ctrl n");
 
+    auto showmodsession = [this](const std::any&){this->showModifySessionGui();};	
+    c = _cmds.createCommand<ml::GuiCommand>("Modify Session", "show-modify-session", showmodsession);
+    c->setKeybind("ctrl m");
+
     auto createnew = [this](const std::any&){this->createNewSession();};
     c = _cmds.createCommand<ml::GuiCommand>("Create New Session", "create-new-session", createnew);
     c->setKeybind("ctrl Return");
+
+    auto modsession = [this](const std::any&){this->modifySession();};	
+    c = _cmds.createCommand<ml::GuiCommand>("Modify Session", "modify-session", modsession);
 
     c = _cmds.createCommand<ml::GuiCommand>("Show Main UI", "show-main-ui", [this](const std::any&){this->showMainUI();});
     c->setKeybind("Escape");
@@ -178,14 +190,46 @@ void TimeTrackingWin::createNewSession()
     auto s = std::make_unique<SessionData>();
     s->name = _sessionGui.name.value();
     s->duration = _sessionGui.duration.value() * 60 * 60;
+    s->duration_done = _sessionGui.duration_done.value() * 60 * 60;
     _sessions.push_back(std::move(s));
     this->showMainUI();
+}
+
+void TimeTrackingWin::modifySession()
+{
+    auto s = _modifiedSession;
+    s->name = _sessionGui.name.value();
+    s->duration = _sessionGui.duration.value() * 60 * 60;
+    s->duration_done = _sessionGui.duration_done.value() * 60 * 60;
+    this->showMainUI();
+}
+
+void TimeTrackingWin::showModifySessionGui()
+{
+    this->stopTrack(false);
+    auto s = _fromIndex(_activeSession);	
+    if (!s)
+    {
+        ml::app()->error("No active session to modify.");
+        return;
+    }
+
+    _modifiedSession = s->data;
+    _sessionGui.name.set(_modifiedSession->name);
+    _sessionGui.duration.set(_modifiedSession->duration / 60.0 / 60.0);
+    _sessionGui.duration_done.set(_modifiedSession->duration_done / 60.0 / 60.0);
+    _newSessionBox->show();
+    _sessionsBox->hide();
+
+    _createBtn->hide();
+    _modifyBtn->show();
 }
 
 void TimeTrackingWin::showMainUI()
 {
     _newSessionBox->hide();
     _sessionsBox->show();
+    _modifiedSession = nullptr;
     this->save();
     this->redrawSessions();
 }
@@ -336,7 +380,7 @@ std::cout << "thread = " << std::this_thread::get_id() << std::endl;
     this->setInfos("Tracking...");
 }
 
-void TimeTrackingWin::stopTrack()
+void TimeTrackingWin::stopTrack(bool showError )
 {
     _beingTracked = -1;
     if (_trackIntervalId != -1)	
@@ -345,15 +389,18 @@ void TimeTrackingWin::stopTrack()
         {
             ml::app()->removeInterval(_trackIntervalId);
             _trackIntervalId = -1;
+            this->setInfos("Tracking stopped.", 3000);
         };
         ml::app()->queue(f);
     }
-    else 
+    else if(showError)
     {
         ml::app()->error("No tracking started.");
     }
-
-    this->setInfos("Tracking stopped.", 3000);
+    else
+    {
+        lg("No tracking started, can't stop it.");
+    }
 }
 
 SessionData* TimeTrackingWin::_dataFromIndex(int index)
